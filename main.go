@@ -54,7 +54,15 @@ func Flatten(value interface{}) map[string]interface{} {
 func FlattenPrefixed(value interface{}, prefix string) map[string]interface{} {
 	m := make(map[string]interface{})
 	FlattenPrefixedToResult(value, prefix, m)
-	return m
+
+	original := reflect.ValueOf(value)
+	kind := original.Kind()
+	if kind == reflect.Ptr || kind == reflect.Interface {
+		original = reflect.Indirect(original)
+		kind = original.Kind()
+	}
+
+	return map[string]interface{}{original.Type().String(): m}
 }
 
 func FlattenPrefixedToResult(value interface{}, prefix string, m map[string]interface{}) {
