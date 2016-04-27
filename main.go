@@ -69,9 +69,10 @@ func FlattenPrefixedToResult(value interface{}, prefix string, m map[string]inte
 		original = reflect.Indirect(original)
 		kind = original.Kind()
 	}
-	if !original.IsValid() {
+	if !original.IsValid() || (kind == reflect.Slice && original.Len() <= 0){
 		return
 	}
+
 	t := original.Type()
 
 	switch kind {
