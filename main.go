@@ -8,6 +8,7 @@ package bellows
 import (
 	"reflect"
 	"strings"
+	"strconv"
 )
 
 func Expand(value map[string]interface{}) map[string]interface{} {
@@ -93,10 +94,15 @@ func FlattenPrefixedToResult(value interface{}, prefix string, m map[string]inte
 			FlattenPrefixedToResult(childValue.Interface(), base+childKey.String(), m)
 		}
 	case reflect.Struct:
-		for i := 0; i < original.NumField(); i += 1 {
+		for i := 0; i < original.NumField(); i++ {
 			childValue := original.Field(i)
 			childKey := t.Field(i).Name
 			FlattenPrefixedToResult(childValue.Interface(), base+childKey, m)
+		}
+	case reflect.Slice:
+		m[prefix+".Count"] = original.Len()
+		for i := 0; i < original.Len(); i++ {
+			FlattenPrefixedToResult(original.Index(i).Interface(), base+strconv.Itoa(i+1), m)
 		}
 	default:
 		if prefix != "" {
